@@ -1,0 +1,45 @@
+# domin,一般被称为领域
+# 定义对话机器人的输入和输出。它包括对话机器人已知的所有意图、实体、槽、动作和表单列表
+version: "3.1"
+
+entities:  # 实体 从用户消息中提取的关键词。例如：电话号码、人名、地点、产品名称
+- zoneName
+- location
+
+slots:  #槽 即是对话机器人的记忆
+  zoneName:
+    type: text
+    initial_value: None
+    influence_conversation: false  # slot值的改变是否会影响对话流程
+    mappings:              #槽的映射
+    - type: from_entity     # from_entity 表示根据实体填充槽
+      entity: zoneName
+  location:
+    type: text
+    initial_value: None
+    influence_conversation: false  # slot值的改变是否会影响对话流程
+    mappings:
+    - type: from_entity     # from_entity 表示根据实体填充槽
+      entity: location
+
+intents:  # 意图 在给定的用户信息中，用户试图传达或完成的事情（例如，问候、指定位置）
+  - common_chat
+  - query_camera
+
+responses:  # 响应 以utter_ 开头并向用户发送特定消息
+  utter_common_chat/ask_name:
+  - text: "我叫小迪"
+  - text: "我是小迪"
+  - text: "我是物联网机器人小迪"
+
+  utter_common_chat/ask_what_do:
+  - text: "我能帮您查询公共区域的摄像头信息哦"
+  - text: "您可以试着问我 我可以看看明故宫校区的摄像头吗"
+  - text: "尝试对我说 我想看将军路校区的摄像头"
+
+actions: #自定义动作 以actions_开头，运行任意代码并发送任意数量的消息（或不发送）
+- action_query_camera
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

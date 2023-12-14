@@ -1,0 +1,56 @@
+version: "3.1"
+
+nlu:
+# intent 定义意图,即例子中的输入指向同一个意图
+- intent: common_chat/ask_name
+  examples: |
+    - 你的名字？
+    - 你叫什么？
+    - 我该如何称呼你？
+- intent: common_chat/ask_what_do
+  examples: |
+    - 你能干些什么？
+    - 能给我一些帮助吗？
+    - 你的特长是什么？
+    - 你有哪些功能？
+
+- intent: query_camera
+  examples: |
+    - 查询摄像头
+    - 查询设备
+    - 我能看一下[将军路校区](zoneName)的摄像头吗
+    - 查一下[将军路校区](zoneName)的[公共区域一](location)的监控画面
+    - 查看[将军路](zoneName)的监控
+    - 查看[将军路](zoneName)的现场画面
+    - 我要看[将军路校区](zoneName)的[公共区域一](location)的现场画面
+
+# synonym 定义同义词,即例子中的输入都指向同一个词
+- synonym: 将军路校区
+  examples: |
+    - 将军路
+    - 将军路校区
+    - 江宁校区
+    - 江宁
+
+- synonym: 明故宫校区
+  examples: |
+    - 明故宫
+    - 明故宫校区
+    - 本部
+    - 本部校区
+
+# lookup 定义查找表,相当于大型正则表达式,此处用于和实体提取器配合
+- lookup: zoneName
+  examples: |
+    - 明故宫校区
+    - 将军路校区
+    - 本部
+    - 江宁
+
+- lookup: location
+  examples: |
+    - 公共区域一
+    - 公共区域二
+    - 公共区域三
+
+

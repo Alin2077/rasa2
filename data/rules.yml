@@ -1,0 +1,19 @@
+version: "3.1"
+
+# 一些概念
+# action(动作) 对话机器人在对话中执行的单个步骤（例如：调用 API 或发送响应至用户）。
+
+rules:
+  - rule: respond to common_chat
+    steps:
+    - intent: common_chat
+    - action: utter_common_chat
+
+  - rule: action to query_camera
+    steps:
+    - intent: query_camera
+    - action: action_query_camera
+
+
+
+

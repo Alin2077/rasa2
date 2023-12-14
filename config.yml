@@ -1,0 +1,84 @@
+# The config recipe.
+# https://rasa.com/docs/rasa/model-configuration/
+recipe: default.v1
+
+# The assistant project unique identifier
+# This default value must be replaced with a unique assistant name within your deployment
+assistant_id: 20231205-171940-deterministic-mozzarella
+
+# Configuration for Rasa NLU.
+# https://rasa.com/docs/rasa/nlu/components/
+language: zh  # 使用中文分词器时需要将这个设置为zh,英文则是en
+
+# 配置组件 主要有: 分词器,特征提取器,意图分类器,实体提取器,选择器
+# 分词器（Tokenizer）：将输入的文本切分成单词或子词。
+# 特征提取器（Feature Extractor）：提取输入文本的特征 --- 为后续意图分类，实体提取提供支撑
+# 意图分类器（Intent Classifier）：对输入文本进行意图分类  --- 帮助机器理解用户的意图
+# 实体提取器（Entity Extractor）：从输入文本中提取出实体信息。
+# 选择器（Selector）：根据一定的规则和算法，从候选答案中选择最合适的答案。
+pipeline:
+# # No configuration for the NLU pipeline was provided. The following default pipeline was used to train your model.
+# # If you'd like to customize it, uncomment and adjust the pipeline.
+# # See https://rasa.com/docs/rasa/tuning-your-model for more information.
+
+# 中文分词器
+- name: JiebaTokenizer
+  # dictionary_path: "path/to/custom/dictionary/dir"
+  intent_tokenization_flag: False    # 给意图打标记，一般复杂的意图时需要开启
+  # intent_split_symbol: "_"         # 设置分隔符以拆分意图标签
+  token_pattern: None  # 正则表达式来对分词后的结果进行处理
+#- name: WhitespaceTokenizer   # 这是使用空白符作为分词器
+
+# 特征提取器
+#- name: RegexFeaturizer  # 将文本提取正则表达式的特征提取器,需要在nlu数据集中定义[正则表达式]或者定义[查找表],因为查找表即是一个很大的正则表达式
+# - name: LexicalSyntacticFeaturizer  # 与spaCy相结合使用的特征提取器
+- name: CountVectorsFeaturizer  # 将文本转换成向量的特征提取器
+  analyzer: word   # 设置分词器，与项目中使用的分词器保持一致
+  # min_ngram: 1    # 最小的切分长度    ---- word时这两个不适用
+  # max_ngram: 6    # 最大的切分长度    ---- 特征提取器会将输入切分成连续子序列，并作为特征
+
+# 实体提取器
+- name: RegexEntityExtractor # 使用正则表达式和训练数据中的查找表来提取实体
+  use_lookup_tables: True  #是否使用查找表来提取实体
+  use_word_boundaries: False  #是否考虑单词边界
+
+# 意图分类器
+- name: DIETClassifier # 一种机器学习模型，进行意图分离和实体抽取，使用DIET训练模型
+  epochs: 200  # 指定训练次数,不是越大越好
+  constrain_similarities: true  # 对所有相似项应用sigmoid型交叉熵损失,设置为true更适合推广到现实界
+
+# 其他组件
+- name: EntitySynonymMapper # 用于处理实体同义词的组件，需要一个字典 synonym
+  constrain_similarities: true
+
+- name: FallbackClassifier # 语言理解模块，用于处理低信度的意图分类结果
+  threshold: 0.5  # 设置阈值   ---- 影响着意图识别，实体提取和语言模型选择
+  ambiguity_threshold: 0.1  # 控制最高意图的置信度必须超过排名第二的意图的置信度的最小值
+
+# 选择器
+- name: ResponseSelector
+  epochs: 10   # 指定训练次数,不是越大越好
+  retrieval_intent: common_chat
+
+- name: ResponseSelector
+  epochs: 10   # 指定训练次数,不是越大越好
+  retrieval_intent: query_camera
+
+
+# Configuration for Rasa Core.
+# https://rasa.com/docs/rasa/core/policies/
+# 配置策略
+policies:
+# # No configuration for policies was provided. The following default policies were used to train your model.
+# # If you'd like to customize them, uncomment and adjust the policies.
+# # See https://rasa.com/docs/rasa/policies for more information.
+#   - name: MemoizationPolicy
+- name: RulePolicy
+- name: AugmentedMemoizationPolicy
+#   - name: UnexpecTEDIntentPolicy
+#     max_history: 5
+#     epochs: 100
+#   - name: TEDPolicy
+#     max_history: 5
+#     epochs: 100
+#     constrain_similarities: true
